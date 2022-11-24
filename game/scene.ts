@@ -1,10 +1,21 @@
 import Phaser, { Types } from 'phaser'
-const star = require('./assets/star.png')
 const norris = require('./assets/Norris.png')
+const bug = require('./assets/bug.png')
 
 export class BootScene extends Phaser.Scene {
   cursors: Types.Input.Keyboard.CursorKeys | null = null
   player: Types.Physics.Arcade.SpriteWithDynamicBody | null = null
+  canvas: {
+    width: number,
+    height: number
+  } = {
+      width: 800,
+      height: 600
+    }
+  timedEvent: Phaser.Time.TimerEvent | null = null
+  scoreEvent: Phaser.Time.TimerEvent | null = null
+  scoreText: Phaser.GameObjects.Text | null = null
+  score: number = 0
 
   constructor(config: Phaser.Types.Scenes.SettingsConfig) {
     super({
@@ -14,6 +25,11 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload() {
+    this.canvas = {
+      width: Number(this.game.config.width),
+      height: Number(this.game.config.height)
+    }
+
     // Add norris
     this.load.spritesheet('norris',
       norris,
@@ -21,14 +37,16 @@ export class BootScene extends Phaser.Scene {
     );
 
     // Bug
-    this.textures.addBase64('star', star);
+    this.textures.addBase64('bug', bug);
   }
 
   create() {
     // this.physics.world.setBoundsCollision(true, false, true, false)
 
     // Add player
-    this.player = this.physics.add.sprite(100, 450, 'norris');
+    this.player = this.physics.add.sprite(this.canvas.width * 0.30, this.canvas.height, 'norris')
+      .setScale(1.5)
+      .refreshBody();
 
     // Set player bounce when colliding
     this.player.setBounce(0.2);
@@ -47,32 +65,62 @@ export class BootScene extends Phaser.Scene {
     // Initiate cursors
     this.cursors = this.input.keyboard.createCursorKeys();
 
+    this.physics.world.on('worldbounds', function (body: any, up: boolean, down: boolean, left: boolean, right: boolean) {
+      if (left) {
+        console.log('is left')
+        body.gameObject.destroy()
+      }
+    });
+
     // Add a bug every 700 ms
-    this.addStar()
-    // let timedEvent = this.time.addEvent({ delay: 700, callback: this.addStar, callbackScope: this, loop: true,  })
+    this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.addBug, callbackScope: this});
+    this.scoreEvent = this.time.addEvent({ delay: 1, callback: this.incrementScore, callbackScope: this, loop: true});
+  
+    this.scoreText = this.add.text(this.canvas.width / 2, this.canvas.height / 4, `Score: ${this.score}`, { color: '#ffffff', fontSize: '2rem' }).setOrigin(0.5, 0.5)
   }
 
-  addStar() {
-    let star = this.physics.add.sprite(Number(this.game.config.width) - 10, 600, 'star');
-    star.setCollideWorldBounds(true)
-    star.setVelocityX(-350)
-
-    this.player && this.physics.add.overlap(this.player, star, this.gameOver, undefined, this)
-
-    setTimeout(() => {
-      this.addStar()
-    }, Phaser.Math.Between(500, 1500))
+  incrementScore() {
+    this.score++
+    this.scoreText?.setText(`Score: ${this.score}`)
   }
 
-  gameOver() {
-    this.add.text(350, 300, 'Game Over', { color: '#000000' })
+  addBug() {
+    const bug = this.physics.add.sprite(this.canvas.width - 35, this.canvas.height, 'bug')
+      .setScale(0.2)
+      .refreshBody()
+
+    bug.setCollideWorldBounds(true)
+    bug.body.onWorldBounds = true
+    bug.setVelocityX(-300)
+
+    this.player && this.physics.add.overlap(this.player, bug, this.gameOver, undefined, this)
+
+    this.timedEvent?.reset({ delay: Phaser.Math.Between(1000,3000), callback: this.addBug, callbackScope: this, repeat: 1});
   }
 
   update(): void {
     if (this.cursors?.up.isDown && this.player?.body.bottom === this.physics.world.bounds.bottom) {
-      this.player?.setVelocityY(-600);
+      this.player?.setVelocityY(-1000);
     }
 
     this.player?.anims.play('right', true);
+
+    let keyObj = this.input.keyboard.addKey('ENTER');  // Get key object
+    if (keyObj.isDown) {
+      this.scene.restart()
+    }
+  }
+
+  gameOver() {
+    this.timedEvent?.destroy()
+    this.scoreEvent?.destroy()
+    this.player?.setActive(false).setVisible(false);
+    
+    let allSprites = this.children.list.filter(x => x instanceof Phaser.GameObjects.Sprite && x.active == true);
+    allSprites.forEach(x => x.destroy());
+
+    this.add.text(this.canvas.width / 2, this.canvas.height / 2.5, 'Game Over', { color: '#ffffff', fontSize: '5rem' }).setOrigin(0.5, 0.5)
+    this.add.text(this.canvas.width / 2, this.canvas.height / 2, 'Press ENTER to restart', { color: '#ffffff', fontSize: '2rem' }).setOrigin(0.5, 0.5)
+    // this.scene.pause()
   }
 }
