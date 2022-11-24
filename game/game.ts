@@ -1,10 +1,10 @@
 import { BootScene } from './scene'
 
-const createGame = (config: Phaser.Types.Core.GameConfig = {}) =>
-    new Phaser.Game({
+const createGame = (config: Phaser.Types.Core.GameConfig = {}) => {
+    return new Phaser.Game({
         parent: 'phaser',
         type: Phaser.AUTO,
-        width: 800,
+        width: config.width,
         height: 600,
         scene: [BootScene],
         physics: {
@@ -14,7 +14,8 @@ const createGame = (config: Phaser.Types.Core.GameConfig = {}) =>
               debug: false
           }
         },
-        backgroundColor: '#f3f4f6'
+        backgroundColor: '#16181D'
     })
+}
 
 export default createGame

@@ -48,17 +48,20 @@ export class BootScene extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys();
 
     // Add a bug every 700 ms
-    let timedEvent = this.time.addEvent({ delay: 700, callback: this.addStar, callbackScope: this, loop: true,  })
+    this.addStar()
+    // let timedEvent = this.time.addEvent({ delay: 700, callback: this.addStar, callbackScope: this, loop: true,  })
   }
 
   addStar() {
-    const random = Phaser.Math.Between(0, 50)
-    let star = this.physics.add.sprite(750 + random, 600, 'star');
+    let star = this.physics.add.sprite(Number(this.game.config.width) - 10, 600, 'star');
     star.setCollideWorldBounds(true)
     star.setVelocityX(-350)
 
     this.player && this.physics.add.overlap(this.player, star, this.gameOver, undefined, this)
 
+    setTimeout(() => {
+      this.addStar()
+    }, Phaser.Math.Between(500, 1500))
   }
 
   gameOver() {

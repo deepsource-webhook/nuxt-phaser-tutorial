@@ -13,7 +13,7 @@ export default {
     }),
     mounted() {
         this.$nextTick(() => {
-            this.game = this.createGame()
+            this.game = this.createGame({ width: this.$el.clientWidth })
         })
     },
     beforeDestroy() {

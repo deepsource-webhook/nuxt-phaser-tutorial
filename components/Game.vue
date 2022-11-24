@@ -1,6 +1,6 @@
 <template>
 <div v-if="createGame">
-  <phaser-game  :create-game="createGame" />
+  <phaser-game :create-game="createGame" />
   <hr />
 </div>
 </template>
