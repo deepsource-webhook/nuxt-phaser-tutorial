@@ -10,11 +10,11 @@ const createGame = (config: Phaser.Types.Core.GameConfig = {}) =>
         physics: {
           default: 'arcade',
           arcade: {
-              gravity: { y: 300 },
+              gravity: { y: 2000 },
               debug: false
           }
         },
-        // backgroundColor: '#bdae58',
+        backgroundColor: '#f3f4f6',
         // physics: {
         //     default: 'arcade',
         //     arcade: {
