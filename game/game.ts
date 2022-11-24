@@ -14,17 +14,7 @@ const createGame = (config: Phaser.Types.Core.GameConfig = {}) =>
               debug: false
           }
         },
-        backgroundColor: '#f3f4f6',
-        // physics: {
-        //     default: 'arcade',
-        //     arcade: {
-        //         gravity: { y: 500 },
-        //     },
-        // },
-        // render: {
-        //     pixelArt: true
-        // },
-        // ...config,
+        backgroundColor: '#f3f4f6'
     })
 
 export default createGame

@@ -1,5 +1,8 @@
 <template>
-  <PhaserGame :createGame="createGame" v-if="createGame" />
+<div v-if="createGame">
+  <phaser-game  :create-game="createGame" />
+  <hr />
+</div>
 </template>
 
 <script lang="ts">
