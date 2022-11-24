@@ -3,7 +3,7 @@ const sky = require('./assets/sky.png')
 const ground = require('./assets/platform.png')
 const star = require('./assets/star.png')
 const bomb = require('./assets/bomb.png')
-const dude = require('./assets/dude.png')
+const dude = require('./assets/Norris.png')
 
 export class BootScene extends Phaser.Scene {
   cursors: Types.Input.Keyboard.CursorKeys | null = null
@@ -24,7 +24,7 @@ export class BootScene extends Phaser.Scene {
     this.textures.addBase64('star', star);
     this.load.spritesheet('dude',
       dude,
-      { frameWidth: 32, frameHeight: 48 }
+      { frameWidth: 57, frameHeight: 70 }
     );
   }
 
@@ -38,23 +38,23 @@ export class BootScene extends Phaser.Scene {
     this.player.setBounce(0.2);
     this.player.setCollideWorldBounds(true);
 
-    this.anims.create({
-      key: 'left',
-      frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-      frameRate: 10,
-      repeat: -1
-    });
+    // this.anims.create({
+    //   key: 'left',
+    //   frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+    //   frameRate: 10,
+    //   repeat: -1
+    // });
 
-    this.anims.create({
-      key: 'turn',
-      frames: [{ key: 'dude', frame: 4 }],
-      frameRate: 20
-    });
+    // this.anims.create({
+    //   key: 'turn',
+    //   frames: [{ key: 'dude', frame: 4 }],
+    //   frameRate: 20
+    // });
 
     this.anims.create({
       key: 'right',
-      frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-      frameRate: 10,
+      frames: this.anims.generateFrameNumbers('dude', { start: 2, end: 3 }),
+      frameRate: 8,
       repeat: -1
     });
 
