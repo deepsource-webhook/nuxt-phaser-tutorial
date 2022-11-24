@@ -69,7 +69,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   update(): void {
-    if (this.cursors?.up.isDown) {
+    if (this.cursors?.up.isDown && this.player?.body.bottom === this.physics.world.bounds.bottom) {
       this.player?.setVelocityY(-600);
     }
 
