@@ -15,7 +15,12 @@ export class BootScene extends Phaser.Scene {
   timedEvent: Phaser.Time.TimerEvent | null = null
   scoreEvent: Phaser.Time.TimerEvent | null = null
   scoreText: Phaser.GameObjects.Text | null = null
+  highScoreText: Phaser.GameObjects.Text | null = null
   score: number = 0
+  bugSpeed = -900
+  jumpHeight = -800
+  intervalStart = 700
+  intervalEnd = 1200
 
   constructor(config: Phaser.Types.Scenes.SettingsConfig) {
     super({
@@ -77,10 +82,20 @@ export class BootScene extends Phaser.Scene {
     this.scoreEvent = this.time.addEvent({ delay: 1, callback: this.incrementScore, callbackScope: this, loop: true});
   
     this.scoreText = this.add.text(this.canvas.width / 2, this.canvas.height / 4, `Score: ${this.score}`, { color: '#ffffff', fontSize: '2rem' }).setOrigin(0.5, 0.5)
+
+    if (localStorage.getItem('high')) {
+      this.highScoreText = this.add.text(this.canvas.width / 2, this.canvas.height / 12, `Best: ${localStorage.getItem('high')}`, { color: '#ffffff', fontSize: '1.1rem' }).setOrigin(0.5, 0.5)
+    }
   }
 
   incrementScore() {
     this.score++
+
+    if (this.score % 1000 === 0) {
+      this.bugSpeed -= 20
+      this.intervalEnd -= 100
+    }
+
     this.scoreText?.setText(`Score: ${this.score}`)
   }
 
@@ -91,27 +106,39 @@ export class BootScene extends Phaser.Scene {
 
     bug.setCollideWorldBounds(true)
     bug.body.onWorldBounds = true
-    bug.setVelocityX(-300)
+    console.log('speed', this.bugSpeed)
+    bug.setVelocityX(this.bugSpeed)
 
     this.player && this.physics.add.overlap(this.player, bug, this.gameOver, undefined, this)
 
-    this.timedEvent?.reset({ delay: Phaser.Math.Between(1000,3000), callback: this.addBug, callbackScope: this, repeat: 1});
+    console.log('end', this.intervalEnd)
+    this.timedEvent?.reset({ delay: Phaser.Math.Between(this.intervalStart, this.intervalEnd), callback: this.addBug, callbackScope: this, repeat: 1});
   }
 
   update(): void {
     if (this.cursors?.up.isDown && this.player?.body.bottom === this.physics.world.bounds.bottom) {
-      this.player?.setVelocityY(-1000);
+      this.player?.setVelocityY(this.jumpHeight);
     }
 
     this.player?.anims.play('right', true);
 
     let keyObj = this.input.keyboard.addKey('ENTER');  // Get key object
-    if (keyObj.isDown) {
+    if (keyObj.isDown && this.player?.active === false) {
       this.scene.restart()
     }
   }
 
   gameOver() {
+    const currentHighScore = localStorage.getItem('high')
+
+    if (!currentHighScore || Number(currentHighScore) < this.score) {
+      localStorage.setItem('high', String(this.score))
+      this.scoreText?.setText(`New High Score: ${this.score}`)
+    }
+    
+    this.score = 0
+
+    this.highScoreText?.destroy()
     this.timedEvent?.destroy()
     this.scoreEvent?.destroy()
     this.player?.setActive(false).setVisible(false);
@@ -120,7 +147,7 @@ export class BootScene extends Phaser.Scene {
     allSprites.forEach(x => x.destroy());
 
     this.add.text(this.canvas.width / 2, this.canvas.height / 2.5, 'Game Over', { color: '#ffffff', fontSize: '5rem' }).setOrigin(0.5, 0.5)
-    this.add.text(this.canvas.width / 2, this.canvas.height / 2, 'Press ENTER to restart', { color: '#ffffff', fontSize: '2rem' }).setOrigin(0.5, 0.5)
+    this.add.text(this.canvas.width / 2, this.canvas.height / 1.5, 'Press ENTER to restart', { color: '#ffffff', fontSize: '2rem' }).setOrigin(0.5, 0.5)
     // this.scene.pause()
   }
 }
